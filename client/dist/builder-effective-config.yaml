@@ -1,0 +1,30 @@
+directories:
+  output: dist
+  buildResources: assets
+files:
+  - filter:
+      - build/**/*
+      - build/**/*
+      - node_modules/**/*
+extraMetadata:
+  main: build/electron.js
+mac:
+  publish:
+    provider: github
+    owner: Nikita Contreras
+    repo: Litio
+    private: true
+    token: <stripped sensitive data>
+win:
+  publish:
+    provider: github
+    owner: Nikita Contreras
+    repo: Litio
+    private: true
+    token: <stripped sensitive data>
+publish:
+  provider: github
+  private: true
+  owner: Github Owner
+extends: react-cra
+electronVersion: 22.2.0
