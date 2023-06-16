@@ -7,9 +7,6 @@
     "start": "node server/index.js",
     "build": "cd client && npm install && npm run build"
   },
-  "engines": {
-    "node": "18.13.0"
-  },
   "author": "nikitastrike",
   "license": "ISC",
   "dependencies": {

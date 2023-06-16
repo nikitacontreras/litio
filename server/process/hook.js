@@ -3,7 +3,7 @@ const path = require('path')
 const http = require('http')
 const https = require('https')
 const find = require('find-process')
-
+const os = require("os")
 
 let lcu_port, lcu_rc_port, lcu_install_directory, lcu_api_key = ""
 
@@ -27,8 +27,21 @@ const riot_cert = async (callback) => {
 }
 
 const is_running = async (callback) => {
-    const processList = await find('name', 'LeagueClientUx', true)
-    const isRunning = processList.length > 0
+    let processList, isRunning;
+    switch (os.platform()) {
+        case "darwin":
+            pidList = await find('name', 'League of Legends', true)
+            pidList.forEach((item) => {
+                if (item.bin.endsWith("LeagueClientUx")) {
+                    processList = item
+                }
+            });
+            isRunning = Object.keys(processList).length > 0
+            break;
+        default:
+            processList = await find('name', 'LeagueClientUx', true)
+            isRunning = processList.length > 0
+    }
     if (isRunning) {
         return true
     } else {
@@ -37,23 +50,46 @@ const is_running = async (callback) => {
 }
 const find_client_backend = async callback => {
     console.log("[SERVER] Looking for LeagueClientUx...")
-    const processList = await find('name', 'LeagueClientUx', true)
-    const isRunning = processList.length > 0
+    let processList, isRunning;
+    switch (os.platform()) {
+        case "darwin":
+            pidList = await find('name', 'League of Legends', true)
+            pidList.forEach((item) => {
+                if (item.bin.endsWith("LeagueClientUx")) {
+                    processList = item
+                }
+            });
+            isRunning = Object.keys(processList).length > 0
+            break;
+        default:
+            processList = await find('name', 'LeagueClientUx', true)
+            isRunning = processList.length > 0
+    }
 
     if (isRunning) {
-        lcu_port = processList[0]["cmd"].match(/(?<=--app-port=).*?(?="\s)/).toString()
-        lcu_rc_port = processList[0]["cmd"].match(/(?<=--riotclient-app-port=).*?(?="\s)/).toString()
-        lcu_install_directory = processList[0]["cmd"].match(/(?<=--install-directory=).*?(?="\s)/).toString()
-        lcu_api_key = btoa("riot:" + processList[0]["cmd"].match(/(?<=--remoting-auth-token=).*?(?="\s)/).toString())
-        console.log(`[SERVER] Found LeagueClientUx running on port (${lcu_port})`)
+        switch (os.platform()) {
+            case "darwin":
+                lcu_port = processList.cmd.match(/(?<=--app-port=).*?(?=\s)/).toString()
+                lcu_rc_port = processList.cmd.match(/(?<=--riotclient-app-port=).*?(?=\s)/).toString()
+                lcu_install_directory = processList.cmd.match(/(?<=--install-directory=).*?(?=\s)/).toString()
+                lcu_api_key = btoa("riot:" + processList.cmd.match(/(?<=--remoting-auth-token=).*?(?=\s)/)).toString()
+                break;
+            default:
+                lcu_port = processList[0]["cmd"].match(/(?<=--app-port=).*?(?=\s)/).toString()
+                lcu_rc_port = processList[0]["cmd"].match(/(?<=--riotclient-app-port=).*?(?=\s)/).toString()
+                lcu_install_directory = processList[0]["cmd"].match(/(?<=--install-directory=).*?(?=\s)/).toString()
+                lcu_api_key = btoa("riot:" + processList[0]["cmd"].match(/(?<=--remoting-auth-token=).*?(?=\s)/).toString())
+        }
 
+        console.log(`[SERVER] Found LeagueClientUx running on port (${lcu_port})`)
         return {
-            hostname: "127.0.0.1",
+            hostname: os.hostname(),
+            os: os.platform(),
             port: lcu_port,
             riot_port: lcu_rc_port,
             lol_path: lcu_install_directory,
             api_key: lcu_api_key,
-            api_key_clean: processList[0]["cmd"].match(/(?<=--remoting-auth-token=).*?(?="\s)/).toString()
+            
         }
 
     } else {
@@ -96,7 +132,7 @@ const lcu_hook = async (api_endpoint, _callback) => {
 
         // The whole response has been received. Print out the result.
         response.on('end', () => {
-            console.log(typeof(data))
+            console.log(typeof (data))
             return (data)
         }).on("error", (err) => {
             return (err.message)
