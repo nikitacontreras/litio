@@ -9,19 +9,11 @@ let lcu_port, lcu_rc_port, lcu_install_directory, lcu_api_key = ""
 
 const riot_cert = async (callback) => {
     const file = fs.createWriteStream("riot.pem");
-    const request = http.get(certURL, function (response) {
-        fs.access(path, fs.F_OK, (err) => {
-            if (err) {
-                console.log("[SERVER/certs] Downloading riot.pem");
-                response.pipe(file)
-                console.log(response.pipe)
-
-                file.on("finish", () => {
-                    file.close();
-                    console.log("[SERVER/certs] Download Completed");
-                    callback()
-                })
-            }
+    const request = http.get("http://static.developer.riotgames.com/docs/lol/riotgames.pem", function (response) {
+        response.pipe(file)
+        file.on("finish", () => {
+            file.close();
+            console.log("[SERVER/certs] Download Completed");
         })
     })
 }
@@ -36,17 +28,13 @@ const is_running = async (callback) => {
                     processList = item
                 }
             });
-            isRunning = Object.keys(processList).length > 0
+            isRunning = processList ? Object.keys(processList).length > 0 : false
             break;
         default:
             processList = await find('name', 'LeagueClientUx', true)
             isRunning = processList.length > 0
     }
-    if (isRunning) {
-        return true
-    } else {
-        return false
-    }
+    return isRunning ? true : false
 }
 const find_client_backend = async callback => {
     console.log("[SERVER] Looking for LeagueClientUx...")
@@ -59,7 +47,7 @@ const find_client_backend = async callback => {
                     processList = item
                 }
             });
-            isRunning = Object.keys(processList).length > 0
+            isRunning = processList ? Object.keys(processList).length > 0 : false
             break;
         default:
             processList = await find('name', 'LeagueClientUx', true)
@@ -89,7 +77,7 @@ const find_client_backend = async callback => {
             riot_port: lcu_rc_port,
             lol_path: lcu_install_directory,
             api_key: lcu_api_key,
-            
+
         }
 
     } else {
@@ -124,7 +112,7 @@ const lcu_hook = async (api_endpoint, _callback) => {
         cert: fs.readFileSync(path.resolve(__dirname, "../src/riotgames.pem"))
     }, (response) => {
         let data = '';
-
+        console.log("executed")
         // A chunk of data has been received.
         response.on('data', (chunk) => {
             data += chunk;
@@ -132,10 +120,46 @@ const lcu_hook = async (api_endpoint, _callback) => {
 
         // The whole response has been received. Print out the result.
         response.on('end', () => {
-            console.log(typeof (data))
+            console.log("done")
             return (data)
         }).on("error", (err) => {
             return (err.message)
+        })
+    })
+}
+
+const gameOverflow = async (callback) => {
+    return new Promise((resolve) => {
+        lcu.then(res => {
+            https.get({
+                host: "127.0.0.1",
+                port: res.port,
+                path: "/lol-inventory/v1/wallet/lol_blue_essence",
+                headers: {
+                    Authorization: "Basic " + res.api_key
+                },
+                rejectUnauthorized: false,
+                requestCert: true,
+                agent: false,
+                cert: fs.readFileSync("./riot.pem").toString()
+            }, (response) => {
+                let data = '';
+
+                // A chunk of data has been received.
+                response.on('data', (chunk) => {
+                    data += chunk;
+                });
+
+                // The whole response has been received. Print out the result.
+                response.on('end', () => {
+                    resolve(JSON.parse(data));
+                }).on("error", (err) => {
+                    throw new Error({
+                        error: "NO_DATA_RECEIVED",
+                        message: err
+                    })
+                })
+            })
         })
     })
 }
