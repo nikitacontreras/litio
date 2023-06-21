@@ -99,33 +99,36 @@ const find_game_backend = async (callback) => {
 const lcu_hook = async (api_endpoint, _callback) => {
     lcu = await find_client_backend()
     console.log(`[SERVER/hook] Executing ${api_endpoint}`)
-    https.get({
-        host: lcu.hostname,
-        port: lcu.port,
-        path: api_endpoint,
-        headers: {
-            Authorization: "Basic " + lcu.api_key
-        },
-        rejectUnauthorized: false,
-        requestCert: true,
-        agent: false,
-        cert: fs.readFileSync(path.resolve(__dirname, "../src/riotgames.pem"))
-    }, (response) => {
-        let data = '';
-        console.log("executed")
-        // A chunk of data has been received.
-        response.on('data', (chunk) => {
-            data += chunk;
-        })
-
-        // The whole response has been received. Print out the result.
-        response.on('end', () => {
-            console.log("done")
-            return (data)
-        }).on("error", (err) => {
-            return (err.message)
+    return new Promise((resolve) => {
+        https.get({
+            host: "127.0.0.1",
+            port: lcu.port,
+            path: api_endpoint,
+            headers: {
+                Authorization: "Basic " + lcu.api_key
+            },
+            rejectUnauthorized: false,
+            requestCert: true,
+            agent: false,
+            cert: fs.readFileSync(path.resolve(__dirname, "../src/riotgames.pem"))
+        }, (response) => {
+            let data = '';
+            console.log("executed")
+            // A chunk of data has been received.
+            response.on('data', (chunk) => {
+                data += chunk;
+            })
+    
+            // The whole response has been received. Print out the result.
+            response.on('end', () => {
+                console.log("done", data)
+                resolve(data)
+            }).on("error", (err) => {
+                resolve(err.message)
+            })
         })
     })
+    
 }
 
 const gameOverflow = async (callback) => {

@@ -1,7 +1,6 @@
 const router = require("express").Router()
-const moduleName = "/collections"
+const moduleName = "/summoner"
 const hook = require("../process/hook")
-const summoner = require("../process/summoner")
 const certs = require("../process/certs")
 const { response } = require("express")
 

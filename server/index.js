@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 8080
 const app = express()
 
 //add client to run
-//app.use("/api/collections", lol_collections)
+app.use("/api/collections", lol_collections)
 //app.use("/api/cert", lol_certs)
 //app.use(express.static(path.resolve(__dirname, "../client/build")))
 
@@ -66,6 +66,7 @@ app.get("/api/info/user", async (req, res) => {
         RP: RP.RP,
         blueEssence: blueEssence.lol_blue_essence,
         level: summonerID.summonerLevel,
+        summonerID: summonerID.summonerId,
         accountId: summonerID.accountId,
         puuid: summonerID.puuid,
     })

@@ -133,7 +133,6 @@ const acceptGame = async (callback) => {
                 response.write(response.statusCode);
                 console.log('statusCode:', res.statusCode);
                 console.log('headers:', res.headers);
-                console.log("pene")
                 let data = '';
 
                 // A chunk of data has been received.
@@ -143,10 +142,8 @@ const acceptGame = async (callback) => {
 
                 // The whole response has been received. Print out the result.
                 response.on('end', () => {
-                    console.log("done");
                     resolve(JSON.parse(data));
                 }).on("error", (err) => {
-                    console.log("vagina")
                     throw new Error({
                         error: "NO_DATA_RECEIVED",
                         message: err
