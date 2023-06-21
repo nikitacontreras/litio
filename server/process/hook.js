@@ -63,10 +63,10 @@ const find_client_backend = async callback => {
                 lcu_api_key = btoa("riot:" + processList.cmd.match(/(?<=--remoting-auth-token=).*?(?=\s)/)).toString()
                 break;
             default:
-                lcu_port = processList[0]["cmd"].match(/(?<=--app-port=).*?(?=\s)/).toString()
-                lcu_rc_port = processList[0]["cmd"].match(/(?<=--riotclient-app-port=).*?(?=\s)/).toString()
-                lcu_install_directory = processList[0]["cmd"].match(/(?<=--install-directory=).*?(?=\s)/).toString()
-                lcu_api_key = btoa("riot:" + processList[0]["cmd"].match(/(?<=--remoting-auth-token=).*?(?=\s)/).toString())
+                lcu_port = processList[0]["cmd"].match(/(?<=--app-port=).*?(?="\s)/).toString()
+                lcu_rc_port = processList[0]["cmd"].match(/(?<=--riotclient-app-port=).*?(?="\s)/).toString()
+                lcu_install_directory = processList[0]["cmd"].match(/(?<=--install-directory=).*?(?="\s)/).toString()
+                lcu_api_key = btoa("riot:" + processList[0]["cmd"].match(/(?<=--remoting-auth-token=).*?(?="\s)/).toString())
         }
 
         console.log(`[SERVER] Found LeagueClientUx running on port (${lcu_port})`)
